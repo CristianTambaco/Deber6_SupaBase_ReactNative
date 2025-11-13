@@ -93,7 +93,7 @@ export default function CrearPlanScreen() {
   }
 
   return (
-    <ScrollView style={globalStyles.container}>
+    <View style={[globalStyles.container, { paddingTop: spacing.md }]}>
       <View style={globalStyles.contentPadding}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push("/(tabs)/misPlanes")}>
@@ -153,7 +153,7 @@ export default function CrearPlanScreen() {
           )}
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
