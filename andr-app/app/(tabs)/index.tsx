@@ -1,3 +1,4 @@
+// app/(tabs)/index.tsx (Pantalla principal según rol)
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -13,7 +14,8 @@ import {
   View,
 } from "react-native";
 import { useAuth } from "../../src/presentation/hooks/useAuth";
-import { useRecipes } from "../../src/presentation/hooks/useRecipes";
+import { useRutinas } from "../../src/presentation/hooks/useRutinas";
+import { usePlanes } from "../../src/presentation/hooks/usePlanes";
 import { globalStyles } from "../../src/styles/globalStyles";
 import {
   borderRadius,
@@ -24,56 +26,137 @@ import {
 
 export default function HomeScreen() {
   const { usuario, cerrarSesion } = useAuth();
-  const { recetas, cargando, cargarRecetas, buscar, eliminar } = useRecipes();
-  const [busqueda, setBusqueda] = useState("");
+  const { rutinas: rutinasEntrenador, cargarRutinas } = useRutinas();
+  const { planes: planesEntrenador, cargarPlanes } = usePlanes();
+  const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
+
   const router = useRouter();
 
-  const handleBuscar = () => {
-    if (busqueda.trim()) {
-      buscar(busqueda.trim().toLowerCase());
-    } else {
-      cargarRecetas();
-    }
-  };
-
-  const handleRefresh = async () => {
-    setRefrescando(true);
-    await cargarRecetas();
-    setRefrescando(false);
-  };
+  React.useEffect(() => {
+    const cargarDatos = async () => {
+      setCargando(true);
+      if (usuario?.rol === "entrenador") {
+        await Promise.all([
+          cargarRutinas(usuario.id),
+          cargarPlanes(usuario.id)
+        ]);
+      }
+      // Para usuario, no hay nada específico en Home, podría redirigir o mostrar mensaje
+      setCargando(false);
+    };
+    cargarDatos();
+  }, [usuario, cargarRutinas, cargarPlanes]);
 
   const handleCerrarSesion = async () => {
     await cerrarSesion();
     router.replace("/auth/login");
   };
 
-  const handleEliminar = (recetaId: string) => {
-    Alert.alert(
-      "Confirmar eliminación",
-      "¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer.",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            const resultado = await eliminar(recetaId);
-            if (resultado.success) {
-              Alert.alert("Éxito", "Receta eliminada correctamente");
-            } else {
-              Alert.alert("Error", resultado.error || "No se pudo eliminar");
-            }
-          },
-        },
-      ]
+  if (!usuario) {
+    return (
+      <View style={globalStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
     );
+  }
+
+  const handleRefresh = async () => {
+    setRefrescando(true);
+    if (usuario.rol === "entrenador") {
+      await Promise.all([
+        cargarRutinas(usuario.id),
+        cargarPlanes(usuario.id)
+      ]);
+    }
+    setRefrescando(false);
   };
 
-  if (!usuario) {
+  const mostrarContenidoEntrenador = () => (
+    <>
+      <Text style={styles.sectionTitle}>Tus Rutinas</Text>
+      {rutinasEntrenador.length === 0 ? (
+        <Text style={globalStyles.emptyState}>No tienes rutinas creadas</Text>
+      ) : (
+        <FlatList
+          data={rutinasEntrenador.slice(0, 3)} // Mostrar solo las 3 primeras
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: spacing.md }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[globalStyles.card, styles.rutinaCard]}
+              onPress={() => router.push(`/rutina/editar?id=${item.id}`)}
+            >
+              <Text style={styles.tituloReceta}>{item.titulo}</Text>
+              <Text style={globalStyles.textSecondary} numberOfLines={2}>
+                {item.descripcion}
+              </Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
+      <TouchableOpacity
+        style={[globalStyles.button, globalStyles.buttonSecondary, styles.verMasButton]}
+        onPress={() => router.push("/(tabs)/misRutinas")}
+      >
+        <Text style={globalStyles.buttonText}>Ver todas las rutinas</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.sectionTitle}>Tus Planes</Text>
+      {planesEntrenador.length === 0 ? (
+        <Text style={globalStyles.emptyState}>No tienes planes creados</Text>
+      ) : (
+        <FlatList
+          data={planesEntrenador.slice(0, 3)} // Mostrar solo las 3 primeras
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: spacing.md }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[globalStyles.card, styles.rutinaCard]}
+              onPress={() => router.push(`/plan/editar?id=${item.id}`)}
+            >
+              <Text style={styles.tituloReceta}>{item.nombre}</Text>
+              <Text style={globalStyles.textSecondary} numberOfLines={2}>
+                {item.descripcion}
+              </Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
+      <TouchableOpacity
+        style={[globalStyles.button, globalStyles.buttonSecondary, styles.verMasButton]}
+        onPress={() => router.push("/(tabs)/misPlanes")}
+      >
+        <Text style={globalStyles.buttonText}>Ver todos los planes</Text>
+      </TouchableOpacity>
+    </>
+  );
+
+  const mostrarContenidoUsuario = () => (
+    <View style={globalStyles.containerCentered}>
+      <Text style={styles.saludo}>¡Hola, {usuario.nombre || usuario.email}!</Text>
+      <Text style={globalStyles.textSecondary}>Bienvenido a tu panel de usuario.</Text>
+      <Text style={globalStyles.textSecondary}>Revisa tus rutinas asignadas o registra tu progreso.</Text>
+      <TouchableOpacity
+        style={[globalStyles.button, globalStyles.buttonPrimary, { marginTop: spacing.lg }]}
+        onPress={() => router.push("/(tabs)/rutinasAsignadas")}
+      >
+        <Text style={globalStyles.buttonText}>Ver Rutinas Asignadas</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[globalStyles.button, globalStyles.buttonSecondary, { marginTop: spacing.sm }]}
+        onPress={() => router.push("/(tabs)/progreso")}
+      >
+        <Text style={globalStyles.buttonText}>Mi Progreso</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  if (cargando) {
     return (
       <View style={globalStyles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -88,7 +171,7 @@ export default function HomeScreen() {
           <Text style={styles.saludo}>¡Hola!</Text>
           <Text style={globalStyles.textSecondary}>{usuario.email}</Text>
           <Text style={styles.rol}>
-            {usuario.rol === "chef" ? "👨‍🍳 Chef" : "👤 Usuario"}
+            {usuario.rol === "entrenador" ? "🏋️‍♂️ Entrenador" : "🏃‍♂️ Usuario"}
           </Text>
         </View>
         <TouchableOpacity
@@ -102,103 +185,24 @@ export default function HomeScreen() {
           <Text style={globalStyles.buttonText}>Salir</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.contenedorBusqueda}>
-        <TextInput
-          style={[globalStyles.input, styles.inputBusqueda]}
-          placeholder="Buscar por ingrediente..."
-          value={busqueda}
-          onChangeText={setBusqueda}
-          onSubmitEditing={handleBuscar}
-        />
-        <TouchableOpacity
-          style={[
-            globalStyles.button,
-            globalStyles.buttonPrimary,
-            styles.botonBuscar,
-          ]}
-          onPress={handleBuscar}
-        >
-          <Text style={styles.iconoBuscar}>🔍</Text>
-        </TouchableOpacity>
-      </View>
-
-      {cargando ? (
-        <ActivityIndicator
-          size="large"
-          color={colors.primary}
-          style={{ marginTop: spacing.lg }}
-        />
-      ) : (
-        <FlatList
-          data={recetas}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: spacing.md }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refrescando}
-              onRefresh={handleRefresh}
-            />
-          }
-          ListEmptyComponent={
-            <Text style={globalStyles.emptyState}>
-              No hay recetas disponibles
-            </Text>
-          }
-          renderItem={({ item }) => (
-            <View style={globalStyles.card}>
-              {item.imagen_url ? (
-                <Image
-                  source={{ uri: item.imagen_url }}
-                  style={globalStyles.cardImage}
-                />
-              ) : (
-                <View style={styles.imagenPlaceholder}>
-                  <Text style={globalStyles.textTertiary}>Sin imagen</Text>
-                </View>
-              )}
-
-              <View style={styles.infoReceta}>
-                <Text style={styles.tituloReceta}>{item.titulo}</Text>
-                <Text style={globalStyles.textSecondary} numberOfLines={2}>
-                  {item.descripcion}
-                </Text>
-                <Text style={styles.ingredientes}>
-                  🥘 {item.ingredientes.slice(0, 3).join(", ")}
-                  {item.ingredientes.length > 3 && "..."}
-                </Text>
-              </View>
-
-              {/* Botones de acción para el chef dueño */}
-              {usuario?.id === item.chef_id && (
-                <View style={styles.botonesAccion}>
-                  <TouchableOpacity
-                    style={[
-                      globalStyles.button,
-                      globalStyles.buttonSecondary,
-                      styles.botonAccion,
-                    ]}
-                    onPress={() => router.push(`/recipe/editar?id=${item.id}`)}
-                  >
-                    <Text style={globalStyles.buttonText}>✏️ Editar</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      globalStyles.button,
-                      globalStyles.buttonDanger,
-                      styles.botonAccion,
-                    ]}
-                    onPress={() => handleEliminar(item.id)}
-                  >
-                    <Text style={globalStyles.buttonText}>🗑️ Eliminar</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-        />
-      )}
+      <FlatList
+        data={[]}
+        ListHeaderComponent={usuario?.rol === "entrenador" ? mostrarContenidoEntrenador : mostrarContenidoUsuario}
+        contentContainerStyle={{ padding: spacing.md }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refrescando}
+            onRefresh={handleRefresh}
+          />
+        }
+        ListEmptyComponent={
+          <Text style={globalStyles.emptyState}>
+            No hay datos disponibles
+          </Text>
+        }
+        renderItem={() => null} // No renderiza items de la lista, solo el header
+        keyExtractor={() => "header"} // Clave única para el header
+      />
     </View>
   );
 }
@@ -219,52 +223,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
-  contenedorBusqueda: {
-    flexDirection: "row",
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  inputBusqueda: {
-    flex: 1,
-    marginBottom: 0,
-  },
-  botonBuscar: {
-    width: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconoBuscar: {
+  sectionTitle: {
     fontSize: fontSize.lg,
+    fontWeight: "bold",
+    color: colors.textPrimary,
+    marginVertical: spacing.md,
   },
-  imagenPlaceholder: {
-    width: "100%",
-    height: 200,
-    backgroundColor: colors.borderLight,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: borderRadius.md,
-  },
-  infoReceta: {
-    paddingTop: spacing.md,
+  rutinaCard: {
+    width: 200,
   },
   tituloReceta: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.md,
     fontWeight: "bold",
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
-  ingredientes: {
-    fontSize: fontSize.xs,
-    color: colors.primary,
-    marginTop: spacing.xs,
-  },
-  botonesAccion: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  botonAccion: {
-    flex: 1,
-    paddingVertical: spacing.sm,
+  verMasButton: {
+    marginVertical: spacing.md,
   },
 });
