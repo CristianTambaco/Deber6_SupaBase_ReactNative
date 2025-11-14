@@ -24,14 +24,15 @@ import {
 
 export default function CrearRutinaScreen() {
   const { usuario, esChef: esEntrenador } = useAuth();
-  const { crear, seleccionarImagen, tomarFoto } = useRutinas();
+  const { crear, seleccionarImagen, tomarFoto, subirFotoProgreso } = useRutinas(); // 👈 Añadimos subirFotoProgreso
   const router = useRouter();
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [imagenUri, setImagenUri] = useState<string | null>(null); // 👈 NUEVO ESTADO
   const [cargando, setCargando] = useState(false);
 
   const handleSeleccionarImagen = async () => {
-    Alert.alert("Agregar Foto", "¿Cómo quieres agregar la imagen?", [
+    Alert.alert("Agregar Imagen", "¿Cómo quieres agregar la imagen?", [
       {
         text: "Cancelar",
         style: "cancel",
@@ -41,8 +42,7 @@ export default function CrearRutinaScreen() {
         onPress: async () => {
           const uri = await tomarFoto();
           if (uri) {
-            // Aquí puedes subir la imagen demostrativa si la rutina la tiene
-            // const url = await subirVideoDemostrativo(uri);
+            setImagenUri(uri);
           }
         },
       },
@@ -51,8 +51,7 @@ export default function CrearRutinaScreen() {
         onPress: async () => {
           const uri = await seleccionarImagen();
           if (uri) {
-            // Aquí puedes subir la imagen demostrativa si la rutina la tiene
-            // const url = await subirVideoDemostrativo(uri);
+            setImagenUri(uri);
           }
         },
       },
@@ -69,7 +68,15 @@ export default function CrearRutinaScreen() {
         return;
     }
     setCargando(true);
-    const resultado = await crear(titulo, descripcion, usuario.id);
+    // PASO 1: Subir la imagen si existe
+    let nuevaUrlImagen: string | undefined = undefined; // 👈 Cambiar tipo a `string | undefined`
+    if (imagenUri) {
+      // Usar el método del hook para subir la imagen
+      const urlSubida = await subirFotoProgreso(imagenUri);
+      nuevaUrlImagen = urlSubida; // 👈 Ahora `urlSubida` es `string`, y `nuevaUrlImagen` es `string | undefined`
+    }
+    // PASO 2: Crear la rutina con los datos
+    const resultado = await crear(titulo, descripcion, usuario.id, nuevaUrlImagen);
     setCargando(false);
     if (resultado.success) {
       Alert.alert("Éxito", "Rutina creada correctamente", [
@@ -78,6 +85,7 @@ export default function CrearRutinaScreen() {
           onPress: () => {
             setTitulo("");
             setDescripcion("");
+            setImagenUri(null);
             router.push("/(tabs)/misRutinas");
           },
         },
@@ -129,10 +137,9 @@ export default function CrearRutinaScreen() {
         />
         <TouchableOpacity
           style={[globalStyles.button, globalStyles.buttonSecondary]}
-          onPress={handleSeleccionarImagen}
+          onPress={handleSeleccionarImagen} // 👈 CORREGIDO
         >
           <Text style={globalStyles.buttonText}>
-            {/* Cambiar texto según si hay imagen o no */}
             📷 Agregar Imagen/Video Demostrativo
           </Text>
         </TouchableOpacity>

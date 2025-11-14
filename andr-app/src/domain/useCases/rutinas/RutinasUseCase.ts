@@ -57,24 +57,20 @@ export class RutinasUseCase {
     titulo: string,
     descripcion: string,
     entrenadorId: string,
-    ejercicios?: Ejercicio[] // Opcional, si se manejan aquí
+    imagen_demo_url?: string // <-- Nuevo parámetro opcional
   ): Promise<{ success: boolean; error?: string; rutina?: Rutina }> {
     try {
       const { data, error } = await supabase
         .from("rutinas")
-        .insert({ titulo, descripcion, entrenador_id: entrenadorId })
+        .insert({
+          titulo,
+          descripcion,
+          entrenador_id: entrenadorId,
+          imagen_demo_url: imagen_demo_url, // <-- Guardar la URL de la imagen
+        })
         .select()
         .single();
-
       if (error) throw error;
-
-      // Si se manejan ejercicios, insertarlos aquí con el ID de la rutina creada
-      if (ejercicios && ejercicios.length > 0) {
-        const ejerciciosConRutinaId = ejercicios.map(e => ({ ...e, rutina_id: data.id }));
-        const { error: ejError } = await supabase.from('ejercicios').insert(ejerciciosConRutinaId);
-        if (ejError) throw ejError;
-      }
-
       return { success: true, rutina: data as Rutina };
     } catch (error: any) {
       return { success: false, error: error.message };

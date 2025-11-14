@@ -32,6 +32,9 @@ export default function EditarRutinaScreen() {
   const [cargandoRutina, setCargandoRutina] = useState(true); // Nuevo estado para carga inicial
   const [rutina, setRutina] = useState<Rutina | null>(null); // Estado local para la rutina específica
 
+  const [imagenActualUrl, setImagenActualUrl] = useState<string | null>(null); // <-- NUEVO ESTADO: URL de la imagen actual
+
+
   // Cargar la rutina específica al montar el componente
   useEffect(() => {
     const cargarRutinaEspecifica = async () => {
@@ -61,6 +64,8 @@ export default function EditarRutinaScreen() {
           setRutina(data as Rutina);
           setTitulo(data.titulo);
           setDescripcion(data.descripcion);
+          // Establecer la URL de la imagen actual
+          setImagenActualUrl(data.imagen_demo_url || null); // <-- Añadir esta línea
         }
       } catch (err) {
         console.error("Error inesperado al cargar la rutina:", err);
@@ -125,6 +130,7 @@ export default function EditarRutinaScreen() {
           const uri = await tomarFoto();
           if (uri) {
             setImagenUri(uri);
+            setImagenActualUrl(null); // <-- Limpiar la URL de la imagen actual
           }
         },
       },
@@ -134,6 +140,7 @@ export default function EditarRutinaScreen() {
           const uri = await seleccionarImagen();
           if (uri) {
             setImagenUri(uri);
+            setImagenActualUrl(null); // <-- Limpiar la URL de la imagen actual
           }
         },
       },
@@ -186,6 +193,20 @@ export default function EditarRutinaScreen() {
           multiline
           numberOfLines={4}
         />
+        {/* Vista previa de la imagen actual */}
+        {imagenActualUrl && (
+          <>
+            <Text style={styles.etiquetaImagen}>Imagen actual:</Text>
+            <Image source={{ uri: imagenActualUrl }} style={styles.vistaPrevia} />
+          </>
+        )}
+        {/* Vista previa de la nueva imagen seleccionada */}
+        {imagenUri && (
+          <>
+            <Text style={styles.etiquetaImagen}>Nueva imagen:</Text>
+            <Image source={{ uri: imagenUri }} style={styles.vistaPrevia} />
+          </>
+        )}
         <TouchableOpacity
           style={[globalStyles.button, globalStyles.buttonSecondary]}
           onPress={handleSeleccionarImagen}
@@ -233,4 +254,20 @@ const styles = StyleSheet.create({
   botonGuardar: {
     padding: spacing.lg,
   },
+
+  etiquetaImagen: {
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+    fontWeight: "600",
+  },
+  vistaPrevia: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.borderLight,
+  },
+
 });

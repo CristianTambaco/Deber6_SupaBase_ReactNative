@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   RefreshControl,
   StyleSheet,
   Text,
@@ -84,6 +85,14 @@ export default function MisRutinasScreen() {
     );
   }
 
+  if (cargando) {
+    return (
+      <View style={globalStyles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={globalStyles.container}>
       <View style={styles.header}>
@@ -112,6 +121,13 @@ export default function MisRutinasScreen() {
         }
         renderItem={({ item }) => (
           <View style={globalStyles.card}>
+            {/* Vista previa de la imagen/video si existe */}
+            {item.imagen_demo_url && (
+              <Image
+                source={{ uri: item.imagen_demo_url }}
+                style={styles.vistaPrevia}
+              />
+            )}
             <Text style={styles.tituloRutina}>{item.titulo}</Text>
             <Text style={globalStyles.textSecondary} numberOfLines={2}>
               {item.descripcion}
@@ -145,6 +161,7 @@ export default function MisRutinasScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
@@ -175,4 +192,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: spacing.sm,
   },
+
+  // 👇 NUEVO ESTILO PARA LA VISTA PREVIA
+  vistaPrevia: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginBottom: spacing.md,
+    backgroundColor: colors.borderLight,
+  },
+  
+
+
 });

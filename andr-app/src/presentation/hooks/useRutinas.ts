@@ -31,11 +31,20 @@ export function useRutinas() {
       setCargando(false);
   };
 
-  const crear = async (titulo: string, descripcion: string, entrenadorId: string) => {
-    const resultado = await rutinasUseCase.crearRutina(titulo, descripcion, entrenadorId);
+  const crear = async (
+    titulo: string,
+    descripcion: string,
+    entrenadorId: string,
+    imagen_demo_url?: string // <-- Añadir el parámetro
+  ) => {
+    const resultado = await rutinasUseCase.crearRutina(
+      titulo,
+      descripcion,
+      entrenadorId,
+      imagen_demo_url // <-- Pasar el parámetro
+    );
     if (resultado.success) {
-      // Recargar lista o actualizar estado
-      // await cargarRutinas(entrenadorId); // Recargar para entrenador
+      await cargarRutinas(entrenadorId); // Recargar lista
     }
     return resultado;
   };
