@@ -61,7 +61,7 @@ export default function TabLayout() {
         options={{
           title: "Mis Planes",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="list" size={28} color={color} /> // 👈 Icono Material 'list'
+            <MaterialIcons name="list" size={28} color={color} /> //  Icono Material 'list'
           ),
         }}
       />
