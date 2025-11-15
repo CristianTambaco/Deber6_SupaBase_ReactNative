@@ -148,6 +148,7 @@ export default function EditarPlanScreen() {
     );
   }
 
+  // Si aún está cargando el plan o las rutinas, mostramos el indicador
   if (cargandoPlan || cargandoRutinas) {
     return (
       <View style={globalStyles.loadingContainer}>
@@ -157,9 +158,8 @@ export default function EditarPlanScreen() {
     );
   }
 
-  // Si no se encontró el plan o no se pudo cargar (ya se manejó en el useEffect)
+  // Si no se encontró el plan (por ejemplo, si el ID es inválido o no pertenece al usuario)
   if (!plan) {
-     // Si llega aquí, probablemente el useEffect ya redirigió, pero por si acaso:
      return (
         <View style={globalStyles.containerCentered}>
             <Text style={globalStyles.textSecondary}>Plan no encontrado</Text>
@@ -203,8 +203,17 @@ export default function EditarPlanScreen() {
     }
   };
 
+  // --- NUEVO: Botón para asignar plan a usuarios ---
+  const handleAsignar = () => {
+    if (id) {
+      router.push(`/plan/${id}/asignar`);
+    } else {
+      Alert.alert("Error", "ID de plan no disponible.");
+    }
+  };
+
   return (
-    <View style={globalStyles.container}> {/* ✅ Cambiado de ScrollView a View */}
+    <View style={globalStyles.container}> 
       <View style={globalStyles.contentPadding}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.push("/(tabs)/misPlanes")}>
@@ -248,6 +257,19 @@ export default function EditarPlanScreen() {
             )}
           />
         )}
+
+        {/* Botón para asignar el plan a usuarios */}
+        <TouchableOpacity
+          style={[
+            globalStyles.button,
+            globalStyles.buttonSecondary,
+            styles.botonAsignar,
+          ]}
+          onPress={handleAsignar}
+        >
+          <Text style={globalStyles.buttonText}>👤 Asignar a Usuarios</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             globalStyles.button,
@@ -294,5 +316,10 @@ const styles = StyleSheet.create({
   },
   botonGuardar: {
     padding: spacing.lg,
+  },
+  // Estilo para el botón de asignar
+  botonAsignar: {
+    padding: spacing.lg,
+    marginTop: spacing.md,
   },
 });
