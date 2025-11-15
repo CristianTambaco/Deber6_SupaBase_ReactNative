@@ -78,7 +78,10 @@ export default function RutinasAsignadasScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={globalStyles.card}
-            // onPress={() => router.push(`/rutina/ver?id=${item.id}`)} // Pantalla de detalle opcional
+            onPress={() => router.push({ // 👈 CORRECCIÓN AQUÍ
+              pathname: '/rutina/[id]/ver', // Ruta definida en los archivos
+              params: { id: item.id }, // Parámetro dinámico
+            })}
           >
             <Text style={styles.tituloRutina}>{item.titulo}</Text>
             <Text style={globalStyles.textSecondary} numberOfLines={2}>
