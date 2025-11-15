@@ -171,7 +171,10 @@ export default function HomeScreen() {
           <Text style={styles.saludo}>¡Hola!</Text>
           <Text style={globalStyles.textSecondary}>{usuario.email}</Text>
           <Text style={styles.rol}>
-            {usuario.rol === "entrenador" ? "🏋️‍♂️ Entrenador" : "🏃‍♂️ Usuario"}
+            {/* {usuario.rol === "entrenador" ? "🏋️‍♂️ Entrenador" : "🏃‍♂️ Usuario"} */}
+            {usuario.rol === "entrenador" ? "🏃‍♂️ Usuario" : "🏋️‍♂️ Entrenador" }
+
+
           </Text>
         </View>
         <TouchableOpacity
