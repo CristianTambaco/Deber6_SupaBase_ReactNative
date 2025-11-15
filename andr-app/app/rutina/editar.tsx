@@ -19,6 +19,8 @@ import { colors, fontSize, spacing } from "../../src/styles/theme";
 import { supabase } from "../../src/data/services/supabaseClient"; // Importar cliente Supabase directamente
 import { Rutina } from "../../src/domain/models/Rutina"; // Asegúrate de importar el modelo
 
+import * as ImagePicker from 'expo-image-picker';
+
 export default function EditarRutinaScreen() {
   const { id } = useLocalSearchParams();
   const { usuario } = useAuth(); // Quitamos 'esEntrenador'
@@ -117,33 +119,39 @@ export default function EditarRutinaScreen() {
   }
 
   const handleSeleccionarImagen = async () => {
-    Alert.alert("Cambiar Imagen", "¿Cómo quieres cambiar la imagen?", [
-      {
-        text: "Cancelar",
-        style: "cancel",
+  Alert.alert("Cambiar Imagen", "¿Cómo quieres cambiar la imagen?", [
+    {
+      text: "Cancelar",
+      style: "cancel",
+    },
+    {
+      text: "📷 Cámara",
+      onPress: async () => {
+        const uri = await tomarFoto();
+        if (uri) {
+          setImagenUri(uri);
+          setImagenActualUrl(null); // Limpiar la URL de la imagen actual
+        }
       },
-      {
-        text: "📷 Cámara",
-        onPress: async () => {
-          const uri = await tomarFoto();
-          if (uri) {
-            setImagenUri(uri);
-            setImagenActualUrl(null); // <-- Limpiar la URL de la imagen actual
-          }
-        },
+    },
+    {
+      text: "🖼️ Galería",
+      onPress: async () => {
+        // Permitir seleccionar tanto imágenes como videos
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All, // <-- PERMITIR TODOS LOS TIPOS DE MEDIOS
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.8,
+        });
+        if (!result.canceled) {
+          setImagenUri(result.assets[0].uri);
+          setImagenActualUrl(null); // Limpiar la URL de la imagen actual
+        }
       },
-      {
-        text: "🖼️ Galería",
-        onPress: async () => {
-          const uri = await seleccionarImagen();
-          if (uri) {
-            setImagenUri(uri);
-            setImagenActualUrl(null); // <-- Limpiar la URL de la imagen actual
-          }
-        },
-      },
-    ]);
-  };
+    },
+  ]);
+};
 
   const handleGuardar = async () => {
     if (!titulo || !descripcion) {

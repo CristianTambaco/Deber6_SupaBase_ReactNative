@@ -22,17 +22,21 @@ import {
   spacing,
 } from "../../src/styles/theme";
 
+// 👇 IMPORTACIÓN CORRECTA DE ImagePicker
+import * as ImagePicker from 'expo-image-picker';
+
 export default function CrearRutinaScreen() {
   const { usuario, esEntrenador: esEntrenador } = useAuth();
-  const { crear, seleccionarImagen, tomarFoto, subirFotoProgreso } = useRutinas(); // 👈 Añadimos subirFotoProgreso
+  const { crear, seleccionarImagen, tomarFoto, subirFotoProgreso } = useRutinas();
   const router = useRouter();
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [imagenUri, setImagenUri] = useState<string | null>(null); // 👈 NUEVO ESTADO
+  const [imagenUri, setImagenUri] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
 
-  const handleSeleccionarImagen = async () => {
-    Alert.alert("Agregar Imagen", "¿Cómo quieres agregar la imagen?", [
+  // --- NUEVA FUNCIÓN: Mostrar opciones para agregar imagen o video ---
+  const handleSeleccionarImagenOVideo = async () => {
+    Alert.alert("Agregar Imagen/Video", "¿Cómo quieres agregar la demostración?", [
       {
         text: "Cancelar",
         style: "cancel",
@@ -49,9 +53,15 @@ export default function CrearRutinaScreen() {
       {
         text: "🖼️ Galería",
         onPress: async () => {
-          const uri = await seleccionarImagen();
-          if (uri) {
-            setImagenUri(uri);
+          // Permitir seleccionar tanto imágenes como videos
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All, // <-- PERMITIR TODOS LOS TIPOS DE MEDIOS
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
+          if (!result.canceled) {
+            setImagenUri(result.assets[0].uri);
           }
         },
       },
@@ -68,12 +78,12 @@ export default function CrearRutinaScreen() {
         return;
     }
     setCargando(true);
-    // PASO 1: Subir la imagen si existe
-    let nuevaUrlImagen: string | undefined = undefined; // 👈 Cambiar tipo a `string | undefined`
+    // PASO 1: Subir la imagen/video si existe
+    let nuevaUrlImagen: string | undefined = undefined;
     if (imagenUri) {
-      // Usar el método del hook para subir la imagen
+      // Usar el método del hook para subir la imagen/video
       const urlSubida = await subirFotoProgreso(imagenUri);
-      nuevaUrlImagen = urlSubida; // 👈 Ahora `urlSubida` es `string`, y `nuevaUrlImagen` es `string | undefined`
+      nuevaUrlImagen = urlSubida;
     }
     // PASO 2: Crear la rutina con los datos
     const resultado = await crear(titulo, descripcion, usuario.id, nuevaUrlImagen);
@@ -137,7 +147,7 @@ export default function CrearRutinaScreen() {
         />
         <TouchableOpacity
           style={[globalStyles.button, globalStyles.buttonSecondary]}
-          onPress={handleSeleccionarImagen} // 👈 CORREGIDO
+          onPress={handleSeleccionarImagenOVideo} // 👈 Cambiado a la nueva función
         >
           <Text style={globalStyles.buttonText}>
             📷 Agregar Imagen/Video Demostrativo
