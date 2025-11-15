@@ -39,7 +39,7 @@ export default function AsignarPlanScreen() {
   // Validar que planId y usuario estén definidos y sean válidos
   if (!planId || !usuario) { // <-- Primero verifica que usuario exista
     Alert.alert("Error", "ID de plan o usuario no válido.");
-    router.replace("/(tabs)/misPlanes");
+    
     return;
   }
 
