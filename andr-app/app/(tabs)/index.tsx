@@ -198,11 +198,11 @@ export default function HomeScreen() {
             onRefresh={handleRefresh}
           />
         }
-        ListEmptyComponent={
-          <Text style={globalStyles.emptyState}>
-            No hay datos disponibles
-          </Text>
-        }
+        // ListEmptyComponent={
+        //   <Text style={globalStyles.emptyState}>
+        //     No hay datos disponibles
+        //   </Text>
+        // }
         renderItem={() => null} // No renderiza items de la lista, solo el header
         keyExtractor={() => "header"} // Clave única para el header
       />
