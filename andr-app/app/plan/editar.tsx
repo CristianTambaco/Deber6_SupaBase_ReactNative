@@ -213,7 +213,7 @@ export default function EditarPlanScreen() {
     <View style={globalStyles.container}>
       <View style={globalStyles.contentPadding}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/misPlanes")}>
             <Text style={styles.botonVolver}>← Volver</Text>
           </TouchableOpacity>
           {/* Asegurar que siempre se renderice un string válido */}
