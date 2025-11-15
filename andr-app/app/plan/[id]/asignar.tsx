@@ -50,58 +50,54 @@ export default function AsignarPlanScreen() {
 }, [planId, usuario, esEntrenador]); // <-- Dependencias correctas
 
 // Modificar la función cargarDatos para recibir el usuario
-const cargarDatos = async (usuario: Usuario) => { // <-- Tipado explícito
-  try {
-    setCargando(true);
+// Modificar la función cargarDatos para recibir el usuario
+  const cargarDatos = async (usuario: Usuario) => { // <-- Tipado explícito
+    try {
+      setCargando(true);
+      // 1. Cargar todos los usuarios no entrenadores (excluyendo al actual)
+      const { data: usuariosData, error: usuariosError } = await supabase
+        .from("usuarios")
+        .select("id, email, nombre, rol")
+        .neq("id", usuario.id) // <-- Ahora es seguro, porque `usuario` es de tipo `Usuario`
+        .neq("rol", "entrenador"); // Excluir a otros entrenadores
+      if (usuariosError) throw usuariosError;
 
-    // 1. Cargar todos los usuarios no entrenadores (excluyendo al actual)
-    const { data: usuariosData, error: usuariosError } = await supabase
-      .from("usuarios")
-      .select("id, email, nombre, rol")
-      .neq("id", usuario.id) // <-- Ahora es seguro, porque `usuario` es de tipo `Usuario`
-      .neq("rol", "entrenador"); // Excluir a otros entrenadores
+      // 2. Cargar usuarios ya asignados a este plan
+      const { data: asignadosData, error: asignadosError } = await supabase
+        .from("usuario_plan")
+        .select("usuario_id")
+        .eq("plan_id", planId); // Ahora está garantizado que planId existe
+      if (asignadosError) throw asignadosError;
 
-    if (usuariosError) throw usuariosError;
+      const asignadosMap: Record<string, boolean> = {};
+      asignadosData.forEach((item) => {
+        asignadosMap[item.usuario_id] = true;
+      });
 
-    // 2. Cargar usuarios ya asignados a este plan
-    const { data: asignadosData, error: asignadosError } = await supabase
-      .from("usuario_plan")
-      .select("usuario_id")
-      .eq("plan_id", planId); // Ahora está garantizado que planId existe
+      // Inicializar estados
+      setUsuarios(usuariosData as Usuario[]);
+      setUsuariosAsignados(asignadosMap);
 
-    if (asignadosError) throw asignadosError;
-
-    const asignadosMap: Record<string, boolean> = {};
-    asignadosData.forEach((item) => {
-      asignadosMap[item.usuario_id] = true;
-    });
-
-    // Inicializar estados
-    setUsuarios(usuariosData as Usuario[]);
-    setUsuariosAsignados(asignadosMap);
-    // Inicializar usuariosSeleccionados basado en asignados
-    const seleccionadosInit: Record<string, boolean> = {};
-    usuariosData.forEach((u) => {
-      seleccionadosInit[u.id] = asignadosMap[u.id] || false;
-    });
-    setUsuariosSeleccionados(seleccionadosInit);
-
-  } catch (error) {
-    console.error("Error al cargar datos para asignar plan:", error);
-    Alert.alert("Error", "No se pudieron cargar los usuarios o la asignación actual.");
-  } finally {
-    setCargando(false);
-  }
-};
+      // Inicializar usuariosSeleccionados basado en asignados
+      const seleccionadosInit: Record<string, boolean> = {};
+      usuariosData.forEach((u) => {
+        seleccionadosInit[u.id] = asignadosMap[u.id] || false; // Si está asignado, inicialmente está seleccionado
+      });
+      setUsuariosSeleccionados(seleccionadosInit);
+    } catch (error) {
+      console.error("Error al cargar datos para asignar plan:", error);
+      Alert.alert("Error", "No se pudieron cargar los usuarios o la asignación actual.");
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const toggleUsuario = (userId: string) => {
-    // Solo permitir seleccionar/deseleccionar si no está ya asignado
-    if (!usuariosAsignados[userId]) {
-      setUsuariosSeleccionados((prev) => ({
-        ...prev,
-        [userId]: !prev[userId],
-      }));
-    }
+    // Permitir seleccionar/deseleccionar cualquier usuario
+    setUsuariosSeleccionados((prev) => ({
+      ...prev,
+      [userId]: !prev[userId], // Cambiar el estado de selección
+    }));
   };
 
   const handleGuardar = async () => {
@@ -200,17 +196,16 @@ const cargarDatos = async (usuario: Usuario) => { // <-- Tipado explícito
           renderItem={({ item }) => {
             const estaSeleccionado = usuariosSeleccionados[item.id];
             const estaAsignado = usuariosAsignados[item.id];
-            const esDeshabilitado = estaAsignado; // No se puede deseleccionar si ya está asignado
-
             return (
               <TouchableOpacity
                 style={[
                   globalStyles.card,
                   estaSeleccionado && styles.usuarioSeleccionado,
-                  esDeshabilitado && styles.usuarioDeshabilitado, // Estilo para usuarios ya asignados
+                  // No deshabilitar si ya está asignado, permitir deselección
+                  // estaAsignado && styles.usuarioDeshabilitado, // Eliminado
                 ]}
-                onPress={() => !esDeshabilitado && toggleUsuario(item.id)} // Deshabilitar si ya asignado
-                disabled={esDeshabilitado} // Hacer el TouchableOpacity no interactivo
+                onPress={() => toggleUsuario(item.id)} // Permitir tocar siempre
+                // disabled={estaAsignado} // Eliminado
               >
                 <View style={styles.usuarioInfo}>
                   <Text style={styles.usuarioNombre}>{item.nombre || item.email}</Text>
