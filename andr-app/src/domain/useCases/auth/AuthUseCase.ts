@@ -22,10 +22,10 @@ export class AuthUseCase {
    *
    * @param email - Email del usuario
    * @param password - Contraseña (mínimo 6 caracteres)
-   * @param rol - Tipo de usuario: "chef" o "usuario"
+   * @param rol - Tipo de usuario: "entrenador" o "usuario"
    * @returns Objeto con success y datos o error
    */
-  async registrar(email: string, password: string, rol: "chef" | "usuario") {
+  async registrar(email: string, password: string, rol: "entrenador" | "usuario") {
     try {
       // PASO 1: Crear usuario en Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -55,7 +55,7 @@ export class AuthUseCase {
         {
           id: authData.user.id, // Mismo ID que en Auth
           email: authData.user.email,
-          rol: rol, // Chef o usuario
+          rol: rol, // Entrenador o usuario
         },
         {
           onConflict: "id", // Si el ID ya existe, actualiza
@@ -78,7 +78,7 @@ export class AuthUseCase {
    * @param rol - Rol del usuario
    * @returns Resultado de la operación
    */
-  async crearPerfil(userId: string, email: string, rol: "chef" | "usuario") {
+  async crearPerfil(userId: string, email: string, rol: "entrenador" | "usuario") {
     try {
       const { error } = await supabase.from("usuarios").upsert(
         {
@@ -247,10 +247,10 @@ export class AuthUseCase {
           console.log("Usuario autenticado pero sin perfil...");
 
           // Verificar si hay un rol pendiente guardado
-          let rolPendiente: "chef" | "usuario" = "usuario"; // Por defecto
+          let rolPendiente: "entrenador" | "usuario" = "usuario"; // Por defecto
 
           const rolGuardado = await StorageService.getItem("pending_user_role");
-          if (rolGuardado === "chef" || rolGuardado === "usuario") {
+          if (rolGuardado === "entrenador" || rolGuardado === "usuario") {
             rolPendiente = rolGuardado;
           }
 

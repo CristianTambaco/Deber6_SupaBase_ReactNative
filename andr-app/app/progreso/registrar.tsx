@@ -24,7 +24,7 @@ import {
 
 export default function RegistrarProgresoScreen() {
   const { rutinaId } = useLocalSearchParams(); // Opcional: ID de la rutina relacionada
-  const { usuario, esChef: esEntrenador } = useAuth();
+  const { usuario, esEntrenador: esEntrenador } = useAuth();
   const { registrar, seleccionarImagen, tomarFoto } = useProgreso();
   const router = useRouter();
   const [comentarios, setComentarios] = useState("");

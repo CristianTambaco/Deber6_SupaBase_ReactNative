@@ -22,7 +22,7 @@ import {
 } from "../../src/styles/theme";
 
 export default function ProgresoScreen() {
-  const { usuario, esChef: esEntrenador } = useAuth(); // Renombrar para claridad
+  const { usuario, esEntrenador: esEntrenador } = useAuth(); // Renombrar para claridad
   const { progreso, cargando, cargarProgreso } = useProgreso();
   const [refrescando, setRefrescando] = useState(false);
   const router = useRouter();

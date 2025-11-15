@@ -22,7 +22,7 @@ import { PlanEntrenamiento } from "../../src/domain/models/PlanEntrenamiento"; /
 
 export default function EditarPlanScreen() {
   const { id } = useLocalSearchParams();
-  const { usuario, esChef: esEntrenador } = useAuth();
+  const { usuario, esEntrenador: esEntrenador } = useAuth();
   // Solo necesitamos las funciones de actualización y carga de rutinas del hook
   const { actualizar } = usePlanes();
   const { rutinas: rutinasDisponibles, cargarRutinas } = useRutinas();
@@ -141,7 +141,7 @@ export default function EditarPlanScreen() {
   if (!esEntrenador) {
     return (
       <View style={globalStyles.containerCentered}>
-        <Text style={styles.textoNoChef}>
+        <Text style={styles.textoNoEntrenador}>
           Esta sección es solo para entrenadores 🏋️‍♂️
         </Text>
       </View>
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: spacing.sm,
   },
-  textoNoChef: {
+  textoNoEntrenador: {
     fontSize: fontSize.xl,
     fontWeight: "bold",
     textAlign: "center",

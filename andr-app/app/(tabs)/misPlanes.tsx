@@ -21,7 +21,7 @@ import {
 } from "../../src/styles/theme";
 
 export default function MisPlanesScreen() {
-  const { usuario, esChef: esEntrenador } = useAuth(); // Renombrar para claridad
+  const { usuario, esEntrenador: esEntrenador } = useAuth(); // Renombrar para claridad
   const { planes, cargando, cargarPlanes, eliminar } = usePlanes();
   const [refrescando, setRefrescando] = useState(false);
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function MisPlanesScreen() {
   if (!esEntrenador) {
     return (
       <View style={globalStyles.containerCentered}>
-        <Text style={styles.textoNoChef}>
+        <Text style={styles.textoNoEntrenador}>
           Esta sección es solo para entrenadores 🏋️‍♂️
         </Text>
       </View>
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
   },
-  textoNoChef: {
+  textoNoEntrenador: {
     fontSize: fontSize.xl,
     fontWeight: "bold",
     textAlign: "center",

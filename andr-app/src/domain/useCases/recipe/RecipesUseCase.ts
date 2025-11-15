@@ -59,14 +59,14 @@ export class RecipesUseCase {
    * @param titulo - Título de la receta
    * @param descripcion - Descripción detallada
    * @param ingredientes - Array de ingredientes
-   * @param chefId - ID del chef que la crea
+   * @param entrenadorId - ID del entrenador que la crea
    * @param imagenUri - URI local de la imagen (opcional)
    */
   async crearReceta(
     titulo: string,
     descripcion: string,
     ingredientes: string[],
-    chefId: string,
+    entrenadorId: string,
     imagenUri?: string
   ) {
     try {
@@ -84,7 +84,7 @@ export class RecipesUseCase {
           titulo,
           descripcion,
           ingredientes,
-          chef_id: chefId,
+          entrenador_id: entrenadorId,
           imagen_url: imagenUrl,
         })
         .select()

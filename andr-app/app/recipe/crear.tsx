@@ -22,7 +22,7 @@ import {
 } from "../../src/styles/theme";
 
 export default function CrearRecetaScreen() {
-  const { usuario, esChef } = useAuth();
+  const { usuario, esEntrenador } = useAuth();
   const { crear, seleccionarImagen, tomarFoto } = useRecipes();
   const router = useRouter();
 
@@ -108,7 +108,7 @@ export default function CrearRecetaScreen() {
     }
   };
 
-  if (!esChef) {
+  if (!esEntrenador) {
     return (
       <View style={globalStyles.container}>
         <View style={styles.header}>
@@ -117,11 +117,11 @@ export default function CrearRecetaScreen() {
           </TouchableOpacity>
         </View>
         <View style={globalStyles.containerCentered}>
-          <Text style={styles.textoNoChef}>
-            Esta sección es solo para chefs 👨‍🍳
+          <Text style={styles.textoNoEntrenador}>
+            Esta sección es solo para entrenadors 👨‍🍳
           </Text>
           <Text style={globalStyles.textSecondary}>
-            Crea una cuenta de chef para poder publicar recetas
+            Crea una cuenta de entrenador para poder publicar recetas
           </Text>
         </View>
       </View>
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: spacing.sm,
   },
-  textoNoChef: {
+  textoNoEntrenador: {
     fontSize: fontSize.xl,
     fontWeight: "bold",
     textAlign: "center",

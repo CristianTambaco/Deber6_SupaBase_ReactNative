@@ -51,7 +51,7 @@ export default function EditarRecetaScreen() {
     );
   }
 
-  if (receta.chef_id !== usuario?.id) {
+  if (receta.entrenador_id !== usuario?.id) {
     return (
       <View style={globalStyles.containerCentered}>
         <Text style={styles.textoError}>

@@ -60,14 +60,14 @@ export function useRecipes() {
     titulo: string,
     descripcion: string,
     ingredientes: string[],
-    chefId: string,
+    entrenadorId: string,
     imagenUri?: string
   ) => {
     const resultado = await recipesUseCase.crearReceta(
       titulo,
       descripcion,
       ingredientes,
-      chefId,
+      entrenadorId,
       imagenUri
     );
 

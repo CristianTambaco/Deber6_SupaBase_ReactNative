@@ -23,7 +23,7 @@ const authUseCase = new AuthUseCase();
  * - cerrarSesion: Logout
  *
  * HELPERS:
- * - esChef: Boolean para validaciones rápidas
+ * - esEntrenador: Boolean para validaciones rápidas
  */
 export function useAuth() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -89,7 +89,7 @@ export function useAuth() {
   const registrar = async (
     email: string,
     password: string,
-    rol: "chef" | "usuario"
+    rol: "entrenador" | "usuario"
   ) => {
     const resultado = await authUseCase.registrar(email, password, rol);
 
@@ -127,7 +127,7 @@ export function useAuth() {
    */
   const crearPerfilConRol = async () => {
     const rolGuardado = (await StorageService.getItem("pending_user_role")) as
-      | "chef"
+      | "entrenador"
       | "usuario"
       | null;
     const emailGuardado = await StorageService.getItem("pending_user_email");
@@ -163,6 +163,6 @@ export function useAuth() {
     iniciarSesion, // Función
     cerrarSesion, // Función
     crearPerfilConRol, // Función para crear perfil con rol específico
-    esChef: usuario?.rol === "chef", // Helper
+    esEntrenador: usuario?.rol === "entrenador", // Helper
   };
 }

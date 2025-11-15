@@ -20,7 +20,7 @@ import {
 } from "../../src/styles/theme";
 
 export default function RutinasAsignadasScreen() {
-  const { usuario, esChef: esEntrenador } = useAuth(); // Renombrar para claridad
+  const { usuario, esEntrenador: esEntrenador } = useAuth(); // Renombrar para claridad
   const { rutinas, cargando, cargarRutinasAsignadas } = useRutinas();
   const [refrescando, setRefrescando] = useState(false);
   const router = useRouter();

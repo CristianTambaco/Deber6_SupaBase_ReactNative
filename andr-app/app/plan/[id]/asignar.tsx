@@ -19,7 +19,7 @@ import { Usuario } from "../../../src/domain/models/Usuario";
 
 export default function AsignarPlanScreen() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
-  const { usuario, esChef: esEntrenador } = useAuth();
+  const { usuario, esEntrenador: esEntrenador } = useAuth();
   const { asignarPlan, desasignarPlan } = usePlanes(); // Usamos las funciones del hook
   const router = useRouter();
 

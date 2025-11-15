@@ -23,7 +23,7 @@ import {
 } from "../../src/styles/theme";
 
 export default function CrearRutinaScreen() {
-  const { usuario, esChef: esEntrenador } = useAuth();
+  const { usuario, esEntrenador: esEntrenador } = useAuth();
   const { crear, seleccionarImagen, tomarFoto, subirFotoProgreso } = useRutinas(); // 👈 Añadimos subirFotoProgreso
   const router = useRouter();
   const [titulo, setTitulo] = useState("");
@@ -104,7 +104,7 @@ export default function CrearRutinaScreen() {
           </TouchableOpacity>
         </View>
         <View style={globalStyles.containerCentered}>
-          <Text style={styles.textoNoChef}>
+          <Text style={styles.textoNoEntrenador}>
             Esta sección es solo para entrenadores 🏋️‍♂️
           </Text>
         </View>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: spacing.sm,
   },
-  textoNoChef: {
+  textoNoEntrenador: {
     fontSize: fontSize.xl,
     fontWeight: "bold",
     textAlign: "center",

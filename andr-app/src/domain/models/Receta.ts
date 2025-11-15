@@ -8,7 +8,7 @@ export interface Receta {
   titulo: string; // Nombre de la receta
   descripcion: string; // Descripción detallada
   ingredientes: string[]; // Array de ingredientes
-  chef_id: string; // ID del chef que la creó
+  entrenador_id: string; // ID del entrenador que la creó
   imagen_url?: string; // URL opcional de la imagen
   created_at: string; // ISO string de fecha de creación
 }
