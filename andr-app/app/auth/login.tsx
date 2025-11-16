@@ -15,18 +15,18 @@ import { globalStyles } from "../../src/styles/globalStyles";
 import { colors, fontSize, spacing } from "../../src/styles/theme";
 
 export default function LoginScreen() {
-  // ESTADO LOCAL
+  // ESTADO LOCAL 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
   const [recordarSesion, setRecordarSesion] = useState(true);
 
-  // HOOKS
+  // HOOKS 
   const { iniciarSesion } = useAuth();
   const router = useRouter();
 
   /**
-   * Manejar inicio de sesión
+   * Manejar inicio de sesión 
    */
   const handleLogin = async () => {
     // VALIDACIÓN: Campos vacíos
