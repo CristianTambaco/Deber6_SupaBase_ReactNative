@@ -85,7 +85,7 @@ export default function RegistrarProgresoScreen() {
       return;
   }
   setCargando(true);
-  // ✅ CORRECCIÓN FINAL: Convertir null a undefined para ambos parámetros
+  // Convertir null a undefined para ambos parámetros
   const resultado = await registrar(
     usuario.id,
     comentarios,
